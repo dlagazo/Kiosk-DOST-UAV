@@ -252,6 +252,10 @@ namespace SerialSample
         /// </summary>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
+        /// 
+
+        string received = "";
+        string escaped = "";
         private async Task ReadAsync(CancellationToken cancellationToken)
         {
             Task<UInt32> loadAsyncTask;
@@ -271,15 +275,41 @@ namespace SerialSample
             UInt32 bytesRead = await loadAsyncTask;
             if (bytesRead > 0)
             {
+                //rcvdText.Blocks.Clear();
                 Paragraph paragraph = new Paragraph();
                 string val = dataReaderObject.ReadString(bytesRead);
                 Run run = new Run();
-                run.Text = System.DateTime.Now + ": " + val;
+                run.Text = val;
                 paragraph.Inlines.Add(run);
                 rcvdText.Blocks.Add(paragraph);
                 status.Text = "bytes read successfully!";
+                received += val;
+                escaped += Uri.EscapeDataString(val);
 
-                await webView.InvokeScriptAsync("eval", new string[] { "test(" + val + " )" });
+                if (received.Contains("MSG_END"))
+                {
+                    received = received.Replace("MSG_END", "");
+
+                    System.Diagnostics.Debug.WriteLine(received);
+                    
+                    await webView.InvokeScriptAsync("eval", new string[] { "test(1,2,'" + Uri.EscapeDataString(received) + "')" });
+                    received = "";
+                }
+                else if (received.Contains("FTP_END"))
+                {
+                    received = received.Replace("FTP_END", "");
+
+                    System.Diagnostics.Debug.WriteLine(received);
+
+                    await webView.InvokeScriptAsync("eval", new string[] { "test(1,2,'" + escaped.Substring(0, escaped.Length-4) + "')" });
+                    received = "";
+                }
+
+
+
+                //sendText.Text = val;
+                //await WriteAsync();
+                //await webView.InvokeScriptAsync("eval", new string[] { "test(" + val + " )" });
             }            
         }
 
@@ -340,7 +370,28 @@ namespace SerialSample
             }          
         }
 
-       
+        private void clear_Click(object sender, RoutedEventArgs e)
+        {
+            rcvdText.Blocks.Clear();
+            received = "";
+            escaped = "";
+        }
+
+        private void compare_Click(object sender, RoutedEventArgs e)
+        {
+            string expectedString = sendText.Text;
+            string actualString = received;
+
+            if(expectedString.Equals(actualString))
+            {
+                //do something
+            }
+            else
+            {
+                //not equal
+            }
+        }
+
     }
 
 }

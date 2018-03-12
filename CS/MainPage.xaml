@@ -17,8 +17,8 @@
       
 
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="30*"/>
-            <ColumnDefinition Width="70*"/>
+            <ColumnDefinition Width="20*"/>
+            <ColumnDefinition Width="80*"/>
       
         </Grid.ColumnDefinitions>
 
@@ -36,23 +36,24 @@
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
-            <StackPanel Grid.Column="0"  HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal" Margin="0,0,0,0" Height="auto" Width="auto" >
+            <StackPanel Grid.Column="0"  HorizontalAlignment="Center" VerticalAlignment="Top" Orientation="Horizontal" Margin="0,0,0,0" Height="auto" Width="auto" >
                 <Button Name="comPortInput" Content="Connect" Click="comPortInput_Click"/>
                 <Button Name="closeDevice" Content="Disconnect" Click="closeDevice_Click"/>
-                <TextBox
-                x:Name="status" TextWrapping="Wrap" IsReadOnly="True" Width="auto" Height="40" HorizontalAlignment="Left" VerticalAlignment="Top" 
-                ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" BorderBrush="White"/>
+                <Button Name="clear" Content="Clear" Click="clear_Click"/>
+                <Button Name="compare" Content="Compare" Click="compare_Click"/>
             </StackPanel>
-            
-            <TextBlock Text="Write Data:" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+            <TextBox
+                x:Name="status" TextWrapping="Wrap" IsReadOnly="True" Width="auto" Height="auto" HorizontalAlignment="Left" VerticalAlignment="Top" 
+                ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" BorderBrush="White"/>
+            <TextBlock Text="Test Data:" HorizontalAlignment="Center" VerticalAlignment="Top"/>
 
             <TextBox Name="sendText" Width="auto" Height="80"/>
             <Button Name="sendTextButton" Content="Write" Click="sendTextButton_Click" HorizontalAlignment="Center"/>
 
             <TextBlock HorizontalAlignment="Center" VerticalAlignment="Top"/>
-
-            <RichTextBlock Name="rcvdText" Width="auto" Height="600" VerticalAlignment="Bottom"/>
-
+            <ScrollViewer Height="600" Width="auto">
+                <RichTextBlock Name="rcvdText" Width="auto" Height="auto" VerticalAlignment="Top" ScrollViewer.VerticalScrollMode="Enabled" FontSize="9"/>
+            </ScrollViewer>
 
         </StackPanel>
 
