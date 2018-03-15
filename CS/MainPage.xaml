@@ -12,7 +12,7 @@
     <Page.Resources>
         <CollectionViewSource x:Name="DeviceListSource"/>
     </Page.Resources>
-
+    
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
       
 
@@ -22,7 +22,7 @@
       
         </Grid.ColumnDefinitions>
 
-        
+        <MediaElement x:Name="myPlayer" AutoPlay="True" />
 
       
 
@@ -40,14 +40,14 @@
                 <Button Name="comPortInput" Content="Connect" Click="comPortInput_Click"/>
                 <Button Name="closeDevice" Content="Disconnect" Click="closeDevice_Click"/>
                 <Button Name="clear" Content="Clear" Click="clear_Click"/>
-                <Button Name="compare" Content="Compare" Click="compare_Click"/>
+                <Button Name="compare" Content="Play" Click="compare_Click"/>
             </StackPanel>
             <TextBox
                 x:Name="status" TextWrapping="Wrap" IsReadOnly="True" Width="auto" Height="auto" HorizontalAlignment="Left" VerticalAlignment="Top" 
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" BorderBrush="White"/>
             <TextBlock Text="Test Data:" HorizontalAlignment="Center" VerticalAlignment="Top"/>
 
-            <TextBox Name="sendText" Width="auto" Height="80"/>
+            <TextBox Name="sendText" Width="auto" Height="80" MaxLength="10000000"/>
             <Button Name="sendTextButton" Content="Write" Click="sendTextButton_Click" HorizontalAlignment="Center"/>
 
             <TextBlock HorizontalAlignment="Center" VerticalAlignment="Top"/>

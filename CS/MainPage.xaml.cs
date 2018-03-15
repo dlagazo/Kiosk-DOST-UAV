@@ -10,6 +10,7 @@ using Windows.Storage.Streams;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.UI.Xaml.Documents;
+using System.IO;
 
 namespace SerialSample
 {    
@@ -379,17 +380,17 @@ namespace SerialSample
 
         private void compare_Click(object sender, RoutedEventArgs e)
         {
-            string expectedString = sendText.Text;
-            string actualString = received;
 
-            if(expectedString.Equals(actualString))
-            {
-                //do something
-            }
-            else
-            {
-                //not equal
-            }
+
+            sendString(sendText.Text);
+
+
+        }
+
+        private async void sendString(string str)
+        {
+            await webView.InvokeScriptAsync("eval", new string[] { "test(1,2,'" + str + "')" });
+
         }
 
     }

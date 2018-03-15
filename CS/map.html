@@ -21,7 +21,13 @@
          };
          map = new google.maps.Map(document.getElementById("map-canvas"),
              mapOptions); 
-     }
+       }
+
+       function play(src)
+       {
+           //document.getElementById('audioPlayer').setAttribute("src", "data:audio/wav;base64," + unescape(src));
+           //document.getElementById('audioPlayer').play();
+       }
 
        function test(lat, lng, msg) {
 
@@ -37,6 +43,18 @@
            if (unescape(msg).indexOf("data:image/") >= 0) {
                var infowindow = new google.maps.InfoWindow({
                    content: "<img src='" + unescape(msg) + "'/>",
+
+               });
+
+               marker.addListener('click', function () {
+                   infowindow.open(map, marker);
+               });
+               infowindow.open(map, marker);
+           }
+
+           else if (unescape(msg).indexOf("data:audio/") >= 0) {
+               var infowindow = new google.maps.InfoWindow({
+                   content: "<audio controls='' type='audio/wav' src='"+ unescape(msg) + "'></audio>",
 
                });
 
@@ -64,5 +82,9 @@
    </script>  
  </head>  
  <body>  
-   <div id="map-canvas"/>  
+
+     <audio id="audioPlayer" controls="" src=""></audio> 
+    <div id="map-canvas"/>  
+
+     
  </body></html>  
