@@ -11,7 +11,18 @@
      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBl6WhwC4fVpHVk7HWr9dvnDRrKctRXpqI&sensor=false">  
    </script>  
    <script type="text/javascript">  
-     var map;  
+       var map; 
+       var plane, hq;
+       var zoom = 8;
+       var animationLoop = 0;
+       var planeLats = [];
+       var planeLongs = [];
+       var status = 0;
+       
+
+       var uavCount = 0, currentUav = 0, uavStatus = 0;
+       var uavMarkersArray = [];
+
      function initialize()
       {  
 
@@ -21,12 +32,144 @@
          };
          map = new google.maps.Map(document.getElementById("map-canvas"),
              mapOptions); 
+
+         var myVar = setInterval(play, 500);
+
+         
+
+         var shape = {
+             coords: [1, 1, 1, 20, 18, 20, 18, 1],
+             type: 'poly'
+         };
+
+         hq = new google.maps.Marker({
+             position: new google.maps.LatLng(14.638966, 121.076702),
+             map: map,
+             icon: "/Assets/moderntower.png",
+             title: "HEADQUARTERS"
+         });
+
+         var infowindow = new google.maps.InfoWindow({
+             content: '<b>HEADQUARTERS</b><br/><div><button onclick="setStatus(0)">UAV</button><br/><button onclick="setStatus(1)">Aggregator</button><button onclick="setStatus(2)">Beacon</button></div>'
+
+         });
+
+         hq.addListener('click', function () {
+             infowindow.open(map, hq);
+         });
+         infowindow.open(map, hq);
+
+         plane = new google.maps.Marker({
+             //position: new google.maps.LatLng(14.638966, 121.076702),
+             map: map,
+             icon: "/Assets/aircraftsmall.png",
+             //shape: shape
+         });
+
+         plane.setAnimation(google.maps.Animation.BOUNCE);
+         google.maps.event.addListener(map, 'click', function (event) {
+             //movePlane(event.latLng);
+             render(event.latLng);
+         });
+       }
+
+       function setStatus(stat)
+       {
+           status = stat;
+       }
+
+       function setPath(stat) {
+           currentUav = stat;
+           uavStatus = 1;
+           status = 0;
+       }
+
+       function render(coord) {
+           if (status == 2)
+           {
+               var beacon = new google.maps.Marker({
+                   position: coord,
+                   map: map,
+                   icon: "/Assets/male-2.png"
+               });
+
+               var infowindow = new google.maps.InfoWindow({
+                   content: '<b>SURVIVOR</b><br/><div><button onclick="setStatus(0)">RUN FACIAL RECOGNITION</button><br/></div>'
+
+               });
+
+               beacon.setAnimation(google.maps.Animation.BOUNCE);
+
+               beacon.addListener('click', function () {
+                   infowindow.open(map, beacon);
+               });
+               infowindow.open(map, beacon);
+           }
+
+           else if (status == 0) {
+               if (uavStatus == 0)
+               {
+                   var plane = new google.maps.Marker({
+                       position: coord,
+                       map: map,
+                       icon: "/Assets/aircraftsmall.png",
+                       //shape: shape
+                   });
+
+                   var infowindow = new google.maps.InfoWindow({
+                       content: '<b>UAV</b><br/><div><button onclick="setPath(' + uavCount + ')">SET PATH</button><br/><button onclick="setPath(0)">MOVE</button></div>'
+
+                   });
+
+                   var cityCircle = new google.maps.Circle({
+                       //strokeColor: '#FF0000',
+                       strokeOpacity: 0.2,
+                       strokeWeight: 2,
+                       fillColor: '#FF0000',
+                       fillOpacity: 0.2,
+                       map: map,
+                       center: coord,
+                       radius: 2000
+                   });
+
+                   plane.setAnimation(google.maps.Animation.BOUNCE);
+
+                   plane.addListener('click', function () {
+                       infowindow.open(map, plane);
+                   });
+                   infowindow.open(map, plane);
+
+                   uavCount++;
+                   uavMarkersArray.push(plane);
+               }
+               else if (uavStatus == 1)
+               {
+                   var plane = uavMarkersArray[currentUav];
+                   plane.setPosition(coord);
+               }
+
+               
+           }
+       }
+
+       function movePlane(coord)
+       {
+           plane.setPosition(coord);
+           planeLats.push(coord.lat());
+           planeLongs.push(coord.lng());
        }
 
        function play(src)
        {
-           //document.getElementById('audioPlayer').setAttribute("src", "data:audio/wav;base64," + unescape(src));
-           //document.getElementById('audioPlayer').play();
+           if (planeLats.length > 0)
+           {
+               plane.setPosition(new google.maps.LatLng(planeLats[animationLoop], planeLongs[animationLoop]));
+               if (animationLoop < planeLats.length)
+                   animationLoop++;
+               else
+                   animationLoop = 0;
+           }
+          
        }
 
        function test(lat, lng, msg) {
@@ -83,7 +226,6 @@
  </head>  
  <body>  
 
-     <audio id="audioPlayer" controls="" src=""></audio> 
     <div id="map-canvas"/>  
 
      

@@ -108,6 +108,9 @@
     </AppxManifest>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\aircraftsmall.png" />
+    <Content Include="Assets\male-2.png" />
+    <Content Include="Assets\moderntower.png" />
     <Content Include="map.html" />
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
