@@ -48,7 +48,12 @@
             <TextBlock Text="Test Data:" HorizontalAlignment="Center" VerticalAlignment="Top"/>
 
             <TextBox Name="sendText" Width="auto" Height="80"/>
-            <Button Name="sendTextButton" Content="Write" Click="sendTextButton_Click" HorizontalAlignment="Center"/>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button Name="sendTextButton" Content="Write" Click="sendTextButton_Click" HorizontalAlignment="Center"/>
+                <Button Name="sendAudio" Content="Play" Click="playAudio_Click" HorizontalAlignment="Center"/>
+
+            </StackPanel>
 
             <TextBlock HorizontalAlignment="Center" VerticalAlignment="Top"/>
             <ScrollViewer Height="600" Width="auto">
