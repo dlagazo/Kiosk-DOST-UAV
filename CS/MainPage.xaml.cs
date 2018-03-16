@@ -10,6 +10,7 @@ using Windows.Storage.Streams;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.UI.Xaml.Documents;
+using System.IO;
 
 namespace SerialSample
 {    
@@ -275,7 +276,7 @@ namespace SerialSample
             UInt32 bytesRead = await loadAsyncTask;
             if (bytesRead > 0)
             {
-                
+                //rcvdText.Blocks.Clear();
                 Paragraph paragraph = new Paragraph();
                 string val = dataReaderObject.ReadString(bytesRead);
                 Run run = new Run();
@@ -286,11 +287,7 @@ namespace SerialSample
                 received += val;
                 escaped += Uri.EscapeDataString(val);
 
-                //receiver checking code 
-
-
                 if (received.Contains("MSG_END"))
-
                 {
                     received = received.Replace("MSG_END", "");
 
@@ -381,26 +378,19 @@ namespace SerialSample
             escaped = "";
         }
 
-        private async void playAudio_Click(object sender, RoutedEventArgs e)
-        {
-            await webView.InvokeScriptAsync("eval", new string[] { "playAudio('" + Uri.EscapeDataString(sendText.Text) + "')" });
-        }
-
         private void compare_Click(object sender, RoutedEventArgs e)
         {
-            string expectedString = sendText.Text;
-            string actualString = received;
-
-            if(expectedString.Equals(actualString))
-            {
-                //do something
-            }
-            else
-            {
-                //not equal
 
 
-            }
+            sendString(sendText.Text);
+
+
+        }
+
+        private async void sendString(string str)
+        {
+            await webView.InvokeScriptAsync("eval", new string[] { "test(1,2,'" + str + "')" });
+
         }
 
     }
