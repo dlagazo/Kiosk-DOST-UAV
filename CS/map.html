@@ -53,7 +53,34 @@
          });
 
          var infowindow = new google.maps.InfoWindow({
-             content: '<b>HEADQUARTERS</b><br/><div><button onclick="setStatus(0)">UAV</button><br/><button onclick="setStatus(1)">Aggregator</button><button onclick="setStatus(2)">Beacon</button></div>'
+             content: '<b>HEADQUARTERS</b><br/><br/><input type="text" width="80"/><button>Send</button><br/><br/>' +
+                 '<table>' +
+                    '<tr>' +
+                        '<td>UAV</td>' +
+                        '<td>' +
+                             '<select>' +
+                             '<option value="1">Fixed-wing sweep</option>' +
+                             '<option value="2">Quadrotor loiter</option>' +
+                             '<option value="3">Aerial imager</option>' +
+                             '</select>' +
+                        '</td>' +
+                        '<td>' +
+                            '<button onclick="setStatus(0)">Create</button> <br />' +
+                        '</td>' +
+                    '</tr><tr>' +
+                         '<td>Aggregator</td>' +
+                         '<td>' +
+                             '<select>' +
+                                 '<option value="1">UGV</option>' +
+                                 '<option value="2">VHUB</option>' +
+                                 '<option value="3">Responder</option>' +
+                             '</select>' +
+                         '</td>' +
+                         '<td>' +
+                            '<button onclick="setStatus(1)">Create</button> <br />' +
+                         '</td>' +
+                    '</tr>' +
+                 '</table>'
 
          });
 
@@ -205,8 +232,8 @@
 
                if (animationLoop < planeLats[currentUav].length)
                    animationLoop++;
-               else
-                   animationLoop = 0;
+               //else
+                   //animationLoop = 0;
            }
           
        }
