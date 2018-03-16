@@ -21,7 +21,10 @@
        
 
        var uavCount = 0, currentUav = 0, uavStatus = 0;
-       var uavMarkersArray = [];
+       var uavMarkersArray = [], infoWindows = [], circlesArray = [], beaconsArray = [], beaconsWindowArray = [];
+
+       var uavToPlay;
+
 
      function initialize()
       {  
@@ -33,7 +36,7 @@
          map = new google.maps.Map(document.getElementById("map-canvas"),
              mapOptions); 
 
-         var myVar = setInterval(play, 500);
+         
 
          
 
@@ -84,6 +87,24 @@
            status = 0;
        }
 
+       function move(curr) {
+           uavToPlay = uavMarkersArray[curr];
+           var cityCircle = new google.maps.Circle({
+               //strokeColor: '#FF0000',
+               strokeOpacity: 0.2,
+               strokeWeight: 2,
+               fillColor: '#FF0000',
+               fillOpacity: 0.2,
+               map: map,
+               center: uavToPlay.getPosition(),
+               radius: 2000
+           });
+
+           circlesArray.push(cityCircle);
+
+           var myVar = setInterval(play, 500);
+       }
+
        function render(coord) {
            if (status == 2)
            {
@@ -104,6 +125,9 @@
                    infowindow.open(map, beacon);
                });
                infowindow.open(map, beacon);
+
+               beaconsArray.push(beacon);
+               beaconsWindowArray.push(infowindow);
            }
 
            else if (status == 0) {
@@ -117,10 +141,10 @@
                    });
 
                    var infowindow = new google.maps.InfoWindow({
-                       content: '<b>UAV</b><br/><div><button onclick="setPath(' + uavCount + ')">SET PATH</button><br/><button onclick="setPath(0)">MOVE</button></div>'
+                       content: '<b>UAV</b><br/><div><button onclick="setPath(' + uavCount + ')">SET PATH</button><br/><button onclick="move(' + uavCount + ')">MOVE</button></div>'
 
                    });
-
+                   /*
                    var cityCircle = new google.maps.Circle({
                        //strokeColor: '#FF0000',
                        strokeOpacity: 0.2,
@@ -131,7 +155,7 @@
                        center: coord,
                        radius: 2000
                    });
-
+                   */
                    plane.setAnimation(google.maps.Animation.BOUNCE);
 
                    plane.addListener('click', function () {
@@ -141,11 +165,19 @@
 
                    uavCount++;
                    uavMarkersArray.push(plane);
+                   infoWindows.push(infowindow);
+                   var lats = [];
+                   var longs = [];
+                   planeLats.push(lats);
+                   planeLongs.push(longs);
                }
                else if (uavStatus == 1)
                {
                    var plane = uavMarkersArray[currentUav];
+                   planeLats[currentUav].push(coord.lat());
+                   planeLongs[currentUav].push(coord.lng());
                    plane.setPosition(coord);
+                   //infoWindows[currentUav].setContent(infoWindows[currentUav].getContent() + '<br/>' + coord.lat() + ',' + coord.lng() + ', planeLats:' + planeLats[currentUav].length + ', planeLongs:' + planeLongs[currentUav].length);
                }
 
                
@@ -157,14 +189,21 @@
            plane.setPosition(coord);
            planeLats.push(coord.lat());
            planeLongs.push(coord.lng());
+           
+
        }
 
        function play(src)
        {
-           if (planeLats.length > 0)
+           var tempUav = uavMarkersArray[currentUav];
+           var circle = circlesArray[currentUav];
+           if (planeLats[currentUav].length > 0)
            {
-               plane.setPosition(new google.maps.LatLng(planeLats[animationLoop], planeLongs[animationLoop]));
-               if (animationLoop < planeLats.length)
+               tempUav.setPosition(new google.maps.LatLng(planeLats[currentUav][animationLoop], planeLongs[currentUav][animationLoop]));
+
+               circle.setCenter(new google.maps.LatLng(planeLats[currentUav][animationLoop], planeLongs[currentUav][animationLoop]));
+
+               if (animationLoop < planeLats[currentUav].length)
                    animationLoop++;
                else
                    animationLoop = 0;
@@ -180,26 +219,22 @@
            var marker = new google.maps.Marker({
                position: new google.maps.LatLng(14.638966, 121.076702),
                map: map,
-          
+            
            });
 
            if (unescape(msg).indexOf("data:image/") >= 0) {
-               var infowindow = new google.maps.InfoWindow({
-                   content: "<img src='" + unescape(msg) + "'/>",
 
-               });
+               beaconsWindowArray[0].setContent(beaconsWindowArray[0].getContent() + "<br/><img src='" + unescape(msg) + "'/>");
+             
 
-               marker.addListener('click', function () {
-                   infowindow.open(map, marker);
-               });
-               infowindow.open(map, marker);
+              
            }
 
            else if (unescape(msg).indexOf("data:audio/") >= 0) {
-               var infowindow = new google.maps.InfoWindow({
-                   content: "<audio controls='' type='audio/wav' src='"+ unescape(msg) + "'></audio>",
+               beaconsWindowArray[0].setContent(beaconsWindowArray[0].getContent() + "<br/><audio controls = '' type = 'audio/wav' src = '" + unescape(msg) + "' ></audio>");
 
-               });
+
+              
 
                marker.addListener('click', function () {
                    infowindow.open(map, marker);
