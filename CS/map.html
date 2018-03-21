@@ -53,6 +53,7 @@
          });
 
          var infowindow = new google.maps.InfoWindow({
+<<<<<<< HEAD
              content: '<b>HEADQUARTERS</b><br/><br/><input type="text" width="80"/><button>Broadcast</button><br/><br/>' +
                  '<table>' +
                     '<tr>' +
@@ -81,6 +82,9 @@
                          '</td>' +
                     '</tr>' +
                  '</table>'
+=======
+             content: '<b>HEADQUARTERS</b><br/><div><button onclick="setStatus(0)">UAV</button><br/><button onclick="setStatus(1)">Aggregator</button><button onclick="setStatus(2)">Beacon</button></div>'
+>>>>>>> parent of c03f91d... minor
 
          });
 
@@ -309,12 +313,17 @@
               */
                if (animationLoop < planeLats[currentUav].length)
                    animationLoop++;
+<<<<<<< HEAD
                else {
                    animationLoop = 0;
                    off = true;
                }
 
                
+=======
+               else
+                   animationLoop = 0;
+>>>>>>> parent of c03f91d... minor
            }
 
            
