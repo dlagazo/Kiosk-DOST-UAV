@@ -53,7 +53,7 @@
          });
 
          var infowindow = new google.maps.InfoWindow({
-             content: '<b>HEADQUARTERS</b><br/><br/><input type="text" width="80"/><button>Send</button><br/><br/>' +
+             content: '<b>HEADQUARTERS</b><br/><br/><input type="text" width="80"/><button>Broadcast</button><br/><br/>' +
                  '<table>' +
                     '<tr>' +
                         '<td>UAV</td>' +
@@ -65,7 +65,7 @@
                              '</select>' +
                         '</td>' +
                         '<td>' +
-                            '<button onclick="setStatus(0)">Create</button> <br />' +
+                            '<button onclick="loiter(0)">Send</button> <br />' +
                         '</td>' +
                     '</tr><tr>' +
                          '<td>Aggregator</td>' +
@@ -105,7 +105,8 @@
 
        function setStatus(stat)
        {
-           status = stat;
+
+           //status = stat;
        }
 
        function setPath(stat) {
@@ -220,21 +221,105 @@
 
        }
 
+       var loiterCounter = -1;
+
+       function loiter(src)
+       {
+           loiterCounter++;
+
+           var plane = new google.maps.Marker({
+               position: new google.maps.LatLng(planeLats[loiterCounter][loiterCounter], planeLongs[loiterCounter][loiterCounter]),
+               map: map,
+               icon: "/Assets/aircraftsmall.png",
+               //shape: shape
+           });           
+           plane.setAnimation(google.maps.Animation.BOUNCE)
+           beaconsWindowArray[loiterCounter].open(map, plane);;
+
+           
+
+
+
+
+
+       }
+
+       var off = false;
+
        function play(src)
        {
            var tempUav = uavMarkersArray[currentUav];
            var circle = circlesArray[currentUav];
            if (planeLats[currentUav].length > 0)
            {
+               
+
                tempUav.setPosition(new google.maps.LatLng(planeLats[currentUav][animationLoop], planeLongs[currentUav][animationLoop]));
+
+               
+
 
                circle.setCenter(new google.maps.LatLng(planeLats[currentUav][animationLoop], planeLongs[currentUav][animationLoop]));
 
+               var lat = Math.random() % 10 / 1000;
+               var lng = Math.random() % 10 / 1000;
+
+               if (!off) {
+                   var beacon = new google.maps.Marker({
+                       position: new google.maps.LatLng(planeLats[currentUav][animationLoop] + lat, planeLongs[currentUav][animationLoop] + lng),
+                       map: map,
+                       icon: "/Assets/male-2.png"
+                   });
+
+
+
+                   var infowindow = new google.maps.InfoWindow({
+                       content: '<b>BEACON</b><br/><input type="text" width="80" /><button>Send</button> <br /> <br /><div><button>RUN FACIAL RECOGNITION</button><br/></div>'
+
+                   });
+
+                   //beacon.setAnimation(google.maps.Animation.BOUNCE);
+
+                   beacon.addListener('click', function () {
+                       infowindow.open(map, beacon);
+                   });
+
+                   beaconsArray.push(beacon);
+                   beaconsWindowArray.push(infowindow);
+               }
+               
+               /*var rolls = (Math.random() % 10) + 2;
+
+               for (var i = 0; i < rolls; i++) {
+                   var sign = Math.random() % 2;
+                   var lat = Math.random() % 10 / 100000;
+                   if (sign == 0)
+                       lat = -lat;
+
+                   sign = Math.random() % 2;
+                   var lng = Math.random % 10 / 100000;
+                   if (sign == 0)
+                       lng = -lng;
+
+                   
+                   //infowindow.open(map, beacon);
+
+
+               }
+              */
                if (animationLoop < planeLats[currentUav].length)
                    animationLoop++;
-               //else
-                   //animationLoop = 0;
+               else {
+                   animationLoop = 0;
+                   off = true;
+               }
+
+               
            }
+
+           
+
+           
           
        }
 
@@ -243,43 +328,21 @@
            //map.center(new google.maps.LatLng(lat, lng));
 
 
-           var marker = new google.maps.Marker({
-               position: new google.maps.LatLng(14.638966, 121.076702),
-               map: map,
-            
-           });
+           
 
            if (unescape(msg).indexOf("data:image/") >= 0) {
 
-               beaconsWindowArray[0].setContent(beaconsWindowArray[0].getContent() + "<br/><img src='" + unescape(msg) + "'/>");
+               beaconsWindowArray[loiterCounter].setContent(beaconsWindowArray[loiterCounter].getContent() + "<br/><img src='" + unescape(msg) + "'/>");
              
 
               
            }
 
-           else if (unescape(msg).indexOf("data:audio/") >= 0) {
-               beaconsWindowArray[0].setContent(beaconsWindowArray[0].getContent() + "<br/><audio controls = '' type = 'audio/wav' src = '" + unescape(msg) + "' ></audio>");
+         
 
+           
 
-              
-
-               marker.addListener('click', function () {
-                   infowindow.open(map, marker);
-               });
-               infowindow.open(map, marker);
-           }
-
-           else {
-               var infowindow = new google.maps.InfoWindow({
-                   content: unescape(msg),
-
-               });
-
-               marker.addListener('click', function () {
-                   infowindow.open(map, marker);
-               });
-               infowindow.open(map, marker);
-           }
+           
            
 
        }
