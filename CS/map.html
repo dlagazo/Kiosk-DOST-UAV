@@ -33,7 +33,7 @@
          map = new google.maps.Map(document.getElementById("map-canvas"),
              mapOptions); 
 
-         var myVar = setInterval(play, 500);
+         
 
          
 
@@ -78,10 +78,14 @@
            status = stat;
        }
 
-       function setPath(stat) {
+       function setPath(uavCount) {
            currentUav = stat;
            uavStatus = 1;
            status = 0;
+       }
+
+       function move(uavCount) {
+           var myVar = setInterval(play, 500);
        }
 
        function render(coord) {
@@ -117,9 +121,15 @@
                    });
 
                    var infowindow = new google.maps.InfoWindow({
-                       content: '<b>UAV</b><br/><div><button onclick="setPath(' + uavCount + ')">SET PATH</button><br/><button onclick="setPath(0)">MOVE</button></div>'
+                       content: '<b>UAV</b><br/><div><button onclick="setPath(' + uavCount + ')">SET PATH</button><br/><button onclick="moveUav(' + uavCount +')">MOVE</button></div>'
 
                    });
+
+                   var localLat = [];
+                   var localLng = [];
+
+                   planeLats.push(localLat);
+                   planeLongs.push(localLng);
 
                    var cityCircle = new google.maps.Circle({
                        //strokeColor: '#FF0000',
@@ -142,10 +152,19 @@
                    uavCount++;
                    uavMarkersArray.push(plane);
                }
+               //set path
                else if (uavStatus == 1)
                {
                    var plane = uavMarkersArray[currentUav];
                    plane.setPosition(coord);
+                   planeLats[currentUav].push(coord.lat());
+                   planeLongs[currentUav].push(coord.lng());
+               }
+               else if (uavStatus == 1) {
+                   var plane = uavMarkersArray[currentUav];
+                   plane.setPosition(coord);
+                   planeLats[currentUav].push(coord.lat());
+                   planeLongs[currentUav].push(coord.lng());
                }
 
                
