@@ -21,7 +21,10 @@
        
 
        var uavCount = 0, currentUav = 0, uavStatus = 0;
-       var uavMarkersArray = [];
+       var uavMarkersArray = [], infoWindows = [], circlesArray = [], beaconsArray = [], beaconsWindowArray = [];
+
+       var uavToPlay;
+
 
      function initialize()
       {  
@@ -50,7 +53,34 @@
          });
 
          var infowindow = new google.maps.InfoWindow({
-             content: '<b>HEADQUARTERS</b><br/><div><button onclick="setStatus(0)">UAV</button><br/><button onclick="setStatus(1)">Aggregator</button><button onclick="setStatus(2)">Beacon</button></div>'
+             content: '<b>HEADQUARTERS</b><br/><br/><input type="text" width="80"/><button>Broadcast</button><br/><br/>' +
+                 '<table>' +
+                    '<tr>' +
+                        '<td>UAV</td>' +
+                        '<td>' +
+                             '<select>' +
+                             '<option value="1">Fixed-wing sweep</option>' +
+                             '<option value="2">Quadrotor loiter</option>' +
+                             '<option value="3">Aerial imager</option>' +
+                             '</select>' +
+                        '</td>' +
+                        '<td>' +
+                            '<button onclick="loiter(0)">Send</button> <br />' +
+                        '</td>' +
+                    '</tr><tr>' +
+                         '<td>Aggregator</td>' +
+                         '<td>' +
+                             '<select>' +
+                                 '<option value="1">UGV</option>' +
+                                 '<option value="2">VHUB</option>' +
+                                 '<option value="3">Responder</option>' +
+                             '</select>' +
+                         '</td>' +
+                         '<td>' +
+                            '<button onclick="setStatus(1)">Create</button> <br />' +
+                         '</td>' +
+                    '</tr>' +
+                 '</table>'
 
          });
 
@@ -75,7 +105,8 @@
 
        function setStatus(stat)
        {
-           status = stat;
+
+           //status = stat;
        }
 
        function setPath(uavCount) {
@@ -84,7 +115,25 @@
            status = 0;
        }
 
+<<<<<<< HEAD
        function move(uavCount) {
+=======
+       function move(curr) {
+           uavToPlay = uavMarkersArray[curr];
+           var cityCircle = new google.maps.Circle({
+               //strokeColor: '#FF0000',
+               strokeOpacity: 0.2,
+               strokeWeight: 2,
+               fillColor: '#FF0000',
+               fillOpacity: 0.2,
+               map: map,
+               center: uavToPlay.getPosition(),
+               radius: 2000
+           });
+
+           circlesArray.push(cityCircle);
+
+>>>>>>> 5d7cf915d433dc7280b842cc70dd23bb390b7b02
            var myVar = setInterval(play, 500);
        }
 
@@ -108,6 +157,9 @@
                    infowindow.open(map, beacon);
                });
                infowindow.open(map, beacon);
+
+               beaconsArray.push(beacon);
+               beaconsWindowArray.push(infowindow);
            }
 
            else if (status == 0) {
@@ -121,6 +173,7 @@
                    });
 
                    var infowindow = new google.maps.InfoWindow({
+<<<<<<< HEAD
                        content: '<b>UAV</b><br/><div><button onclick="setPath(' + uavCount + ')">SET PATH</button><br/><button onclick="moveUav(' + uavCount +')">MOVE</button></div>'
 
                    });
@@ -131,6 +184,12 @@
                    planeLats.push(localLat);
                    planeLongs.push(localLng);
 
+=======
+                       content: '<b>UAV</b><br/><div><button onclick="setPath(' + uavCount + ')">SET PATH</button><br/><button onclick="move(' + uavCount + ')">MOVE</button></div>'
+
+                   });
+                   /*
+>>>>>>> 5d7cf915d433dc7280b842cc70dd23bb390b7b02
                    var cityCircle = new google.maps.Circle({
                        //strokeColor: '#FF0000',
                        strokeOpacity: 0.2,
@@ -141,7 +200,7 @@
                        center: coord,
                        radius: 2000
                    });
-
+                   */
                    plane.setAnimation(google.maps.Animation.BOUNCE);
 
                    plane.addListener('click', function () {
@@ -151,12 +210,20 @@
 
                    uavCount++;
                    uavMarkersArray.push(plane);
+                   infoWindows.push(infowindow);
+                   var lats = [];
+                   var longs = [];
+                   planeLats.push(lats);
+                   planeLongs.push(longs);
                }
                //set path
                else if (uavStatus == 1)
                {
                    var plane = uavMarkersArray[currentUav];
+                   planeLats[currentUav].push(coord.lat());
+                   planeLongs[currentUav].push(coord.lng());
                    plane.setPosition(coord);
+<<<<<<< HEAD
                    planeLats[currentUav].push(coord.lat());
                    planeLongs[currentUav].push(coord.lng());
                }
@@ -165,6 +232,9 @@
                    plane.setPosition(coord);
                    planeLats[currentUav].push(coord.lat());
                    planeLongs[currentUav].push(coord.lng());
+=======
+                   //infoWindows[currentUav].setContent(infoWindows[currentUav].getContent() + '<br/>' + coord.lat() + ',' + coord.lng() + ', planeLats:' + planeLats[currentUav].length + ', planeLongs:' + planeLongs[currentUav].length);
+>>>>>>> 5d7cf915d433dc7280b842cc70dd23bb390b7b02
                }
 
                
@@ -176,18 +246,109 @@
            plane.setPosition(coord);
            planeLats.push(coord.lat());
            planeLongs.push(coord.lng());
+           
+
        }
+
+       var loiterCounter = -1;
+
+       function loiter(src)
+       {
+           loiterCounter++;
+
+           var plane = new google.maps.Marker({
+               position: new google.maps.LatLng(planeLats[loiterCounter][loiterCounter], planeLongs[loiterCounter][loiterCounter]),
+               map: map,
+               icon: "/Assets/aircraftsmall.png",
+               //shape: shape
+           });           
+           plane.setAnimation(google.maps.Animation.BOUNCE)
+           beaconsWindowArray[loiterCounter].open(map, plane);;
+
+           
+
+
+
+
+
+       }
+
+       var off = false;
 
        function play(src)
        {
-           if (planeLats.length > 0)
+           var tempUav = uavMarkersArray[currentUav];
+           var circle = circlesArray[currentUav];
+           if (planeLats[currentUav].length > 0)
            {
-               plane.setPosition(new google.maps.LatLng(planeLats[animationLoop], planeLongs[animationLoop]));
-               if (animationLoop < planeLats.length)
+               
+
+               tempUav.setPosition(new google.maps.LatLng(planeLats[currentUav][animationLoop], planeLongs[currentUav][animationLoop]));
+
+               
+
+
+               circle.setCenter(new google.maps.LatLng(planeLats[currentUav][animationLoop], planeLongs[currentUav][animationLoop]));
+
+               var lat = Math.random() % 10 / 1000;
+               var lng = Math.random() % 10 / 1000;
+
+               if (!off) {
+                   var beacon = new google.maps.Marker({
+                       position: new google.maps.LatLng(planeLats[currentUav][animationLoop] + lat, planeLongs[currentUav][animationLoop] + lng),
+                       map: map,
+                       icon: "/Assets/male-2.png"
+                   });
+
+
+
+                   var infowindow = new google.maps.InfoWindow({
+                       content: '<b>BEACON</b><br/><input type="text" width="80" /><button>Send</button> <br /> <br /><div><button>RUN FACIAL RECOGNITION</button><br/></div>'
+
+                   });
+
+                   //beacon.setAnimation(google.maps.Animation.BOUNCE);
+
+                   beacon.addListener('click', function () {
+                       infowindow.open(map, beacon);
+                   });
+
+                   beaconsArray.push(beacon);
+                   beaconsWindowArray.push(infowindow);
+               }
+               
+               /*var rolls = (Math.random() % 10) + 2;
+
+               for (var i = 0; i < rolls; i++) {
+                   var sign = Math.random() % 2;
+                   var lat = Math.random() % 10 / 100000;
+                   if (sign == 0)
+                       lat = -lat;
+
+                   sign = Math.random() % 2;
+                   var lng = Math.random % 10 / 100000;
+                   if (sign == 0)
+                       lng = -lng;
+
+                   
+                   //infowindow.open(map, beacon);
+
+
+               }
+              */
+               if (animationLoop < planeLats[currentUav].length)
                    animationLoop++;
-               else
+               else {
                    animationLoop = 0;
+                   off = true;
+               }
+
+               
            }
+
+           
+
+           
           
        }
 
@@ -196,47 +357,29 @@
            //map.center(new google.maps.LatLng(lat, lng));
 
 
-           var marker = new google.maps.Marker({
-               position: new google.maps.LatLng(14.638966, 121.076702),
-               map: map,
-          
-           });
+           
 
            if (unescape(msg).indexOf("data:image/") >= 0) {
-               var infowindow = new google.maps.InfoWindow({
-                   content: "<img src='" + unescape(msg) + "'/>",
 
-               });
 
-               marker.addListener('click', function () {
-                   infowindow.open(map, marker);
-               });
-               infowindow.open(map, marker);
+               beaconsWindowArray[loiterCounter].setContent(beaconsWindowArray[loiterCounter].getContent() + "<br/><img src='" + unescape(msg) + "'/>");
+             
+
+              
            }
 
            else if (unescape(msg).indexOf("data:audio/") >= 0) {
-               var infowindow = new google.maps.InfoWindow({
-                   content: "<audio controls='' type='audio/wav' src='"+ unescape(msg) + "'></audio>",
+               beaconsWindowArray[loiterCounter].setContent(beaconsWindowArray[loiterCounter].getContent() + "<br/><audio controls = '' type = 'audio/wav' src = '" + unescape(msg) + "' ></audio>");
 
-               });
 
-               marker.addListener('click', function () {
-                   infowindow.open(map, marker);
-               });
-               infowindow.open(map, marker);
+              
+
+               
            }
 
-           else {
-               var infowindow = new google.maps.InfoWindow({
-                   content: unescape(msg),
+           
 
-               });
-
-               marker.addListener('click', function () {
-                   infowindow.open(map, marker);
-               });
-               infowindow.open(map, marker);
-           }
+           
            
 
        }

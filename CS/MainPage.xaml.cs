@@ -23,6 +23,10 @@ namespace SerialSample
         DataWriter dataWriteObject = null;
         DataReader dataReaderObject = null;
 
+        private SerialDevice serialPortTelem = null;
+        DataWriter dataWriteObjectTelem = null;
+        DataReader dataReaderObjectTelem = null;
+
         private ObservableCollection<DeviceInformation> listOfDevices;
         private CancellationTokenSource ReadCancellationTokenSource;
        
@@ -102,7 +106,7 @@ namespace SerialSample
                 // Configure serial settings
                 serialPort.WriteTimeout = TimeSpan.FromMilliseconds(1000);
                 serialPort.ReadTimeout = TimeSpan.FromMilliseconds(1000);                
-                serialPort.BaudRate = 57600;
+                serialPort.BaudRate = 9600;
                 serialPort.Parity = SerialParity.None;
                 serialPort.StopBits = SerialStopBitCount.One;
                 serialPort.DataBits = 8;
@@ -131,6 +135,61 @@ namespace SerialSample
             {
                 status.Text = ex.Message;
                 comPortInput.IsEnabled = true;
+                sendTextButton.IsEnabled = false;
+            }
+        }
+
+        private async void comPortTelem_Click(object sender, RoutedEventArgs e)
+        {
+            var selection = ConnectDevices.SelectedItems;
+
+            if (selection.Count <= 0)
+            {
+                status.Text = "Select a device and connect";
+                return;
+            }
+
+            DeviceInformation entry = (DeviceInformation)selection[0];
+
+            try
+            {
+                serialPortTelem = await SerialDevice.FromIdAsync(entry.Id);
+
+                // Disable the 'Connect' button 
+                comPortTelem.IsEnabled = false;
+
+                // Configure serial settings
+                serialPortTelem.WriteTimeout = TimeSpan.FromMilliseconds(1000);
+                serialPortTelem.ReadTimeout = TimeSpan.FromMilliseconds(1000);
+                serialPortTelem.BaudRate = 57600;
+                serialPortTelem.Parity = SerialParity.None;
+                serialPortTelem.StopBits = SerialStopBitCount.One;
+                serialPortTelem.DataBits = 8;
+                serialPortTelem.Handshake = SerialHandshake.None;
+
+                // Display configured settings
+                status.Text = "Serial port configured successfully: ";
+                status.Text += serialPortTelem.BaudRate + "-";
+                status.Text += serialPortTelem.DataBits + "-";
+                status.Text += serialPortTelem.Parity.ToString() + "-";
+                status.Text += serialPortTelem.StopBits;
+
+                // Set the RcvdText field to invoke the TextChanged callback
+                // The callback launches an async Read task to wait for data
+
+
+                // Create cancellation token object to close I/O operations when closing the device
+                ReadCancellationTokenSource = new CancellationTokenSource();
+
+                // Enable 'WRITE' button to allow sending data
+                sendTextButton.IsEnabled = true;
+
+                ListenTelem();
+            }
+            catch (Exception ex)
+            {
+                status.Text = ex.Message;
+                comPortTelem.IsEnabled = true;
                 sendTextButton.IsEnabled = false;
             }
         }
@@ -248,6 +307,44 @@ namespace SerialSample
             }
         }
 
+        private async void ListenTelem()
+        {
+            try
+            {
+                if (serialPortTelem != null)
+                {
+                    dataReaderObjectTelem = new DataReader(serialPortTelem.InputStream);
+
+                    // keep reading the serial input
+                    while (true)
+                    {
+                        await ReadAsync(ReadCancellationTokenSource.Token);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                if (ex.GetType().Name == "TaskCanceledException")
+                {
+                    status.Text = "Reading task was cancelled, closing device and cleaning up";
+                    CloseDevice();
+                }
+                else
+                {
+                    status.Text = ex.Message;
+                }
+            }
+            finally
+            {
+                // Cleanup once complete
+                if (dataReaderObjectTelem != null)
+                {
+                    dataReaderObjectTelem.DetachStream();
+                    dataReaderObjectTelem = null;
+                }
+            }
+        }
+
         /// <summary>
         /// ReadAsync: Task that waits on data and reads asynchronously from the serial device InputStream
         /// </summary>
@@ -257,6 +354,18 @@ namespace SerialSample
 
         string received = "";
         string escaped = "";
+
+        string receivedTelem = "";
+        string escapedTelem = "";
+        private int BEACON_NODE_ID = 0;
+        private int BEACON_TRANSMIT_COUNT = 1;
+        private int BEACON_USERNAME = 2;
+        private int BEACON_UTC_DATE = 3;
+        private int BEACON_UTC_TIME = 4;
+        private int BEACON_LONGITUDE_DEGREES = 5;
+        private int BEACON_LATITUDE_DEGREES = 7;
+        private int BEACON_DATA_ARRAY_LENGTH = 9;
+
         private async Task ReadAsync(CancellationToken cancellationToken)
         {
             Task<UInt32> loadAsyncTask;
@@ -292,7 +401,7 @@ namespace SerialSample
                     received = received.Replace("MSG_END", "");
 
                     System.Diagnostics.Debug.WriteLine(received);
-                    
+
                     await webView.InvokeScriptAsync("eval", new string[] { "test(1,2,'" + Uri.EscapeDataString(received) + "')" });
                     received = "";
                 }
@@ -302,8 +411,69 @@ namespace SerialSample
 
                     System.Diagnostics.Debug.WriteLine(received);
 
-                    await webView.InvokeScriptAsync("eval", new string[] { "test(1,2,'" + escaped.Substring(0, escaped.Length-4) + "')" });
+                    await webView.InvokeScriptAsync("eval", new string[] { "test(1,2,'" + escaped.Substring(0, escaped.Length - 6) + "')" });
                     received = "";
+                    rcvdText.Blocks.Clear();
+                    escaped = "";
+                }
+                
+
+
+                //sendText.Text = val;
+                //await WriteAsync();
+                //await webView.InvokeScriptAsync("eval", new string[] { "test(" + val + " )" });
+            }            
+        }
+
+        private async Task ReadTelemAsync(CancellationToken cancellationToken)
+        {
+            Task<UInt32> loadAsyncTask;
+
+            uint ReadBufferLength = 1024;
+
+            // If task cancellation was requested, comply
+            cancellationToken.ThrowIfCancellationRequested();
+
+            // Set InputStreamOptions to complete the asynchronous read operation when one or more bytes is available
+            dataReaderObjectTelem.InputStreamOptions = InputStreamOptions.Partial;
+
+            // Create a task object to wait for data on the serialPort.InputStream
+            loadAsyncTask = dataReaderObjectTelem.LoadAsync(ReadBufferLength).AsTask(cancellationToken);
+
+            // Launch the task and wait
+            UInt32 bytesRead = await loadAsyncTask;
+            if (bytesRead > 0)
+            {
+                //rcvdText.Blocks.Clear();
+                Paragraph paragraph = new Paragraph();
+                string val = dataReaderObjectTelem.ReadString(bytesRead);
+                Run run = new Run();
+                run.Text = val;
+                paragraph.Inlines.Add(run);
+                rcvdTelem.Blocks.Add(paragraph);
+                status.Text = "bytes read successfully!";
+                receivedTelem += val;
+                escapedTelem += Uri.EscapeDataString(val);
+
+                if (receivedTelem.Contains("MSG_END"))
+                {
+                    receivedTelem = receivedTelem.Replace("MSG_END", "");
+
+                    System.Diagnostics.Debug.WriteLine(receivedTelem);
+
+                    await webView.InvokeScriptAsync("eval", new string[] { "test(1,2,'" + Uri.EscapeDataString(receivedTelem) + "')" });
+                    receivedTelem = "";
+                }
+                else if (receivedTelem.Contains("FTP_END"))
+                {
+                    receivedTelem = receivedTelem.Replace("FTP_END", "");
+
+                    System.Diagnostics.Debug.WriteLine(receivedTelem);
+
+                    await webView.InvokeScriptAsync("eval", new string[] { "test(1,2,'" + escapedTelem.Substring(0, escapedTelem.Length - 6) + "')" });
+                    receivedTelem = "";
+                    rcvdTelem.Blocks.Clear();
+                    escapedTelem = "";
                 }
 
 
@@ -311,7 +481,7 @@ namespace SerialSample
                 //sendText.Text = val;
                 //await WriteAsync();
                 //await webView.InvokeScriptAsync("eval", new string[] { "test(" + val + " )" });
-            }            
+            }
         }
 
         /// <summary>
