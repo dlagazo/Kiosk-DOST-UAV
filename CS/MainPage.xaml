@@ -37,11 +37,10 @@
                 </ListBox.ItemTemplate>
             </ListBox>
             <StackPanel Grid.Column="0"  HorizontalAlignment="Center" VerticalAlignment="Top" Orientation="Horizontal" Margin="0,0,0,0" Height="auto" Width="auto" >
-                <Button Name="comPortInput" Content="Beacon" Click="comPortInput_Click"/>
-                <Button Name="comPortTelem" Content="Telemetry" Click="comPortTelem_Click"/>
-
+                <Button Name="comPortInput" Content="Connect" Click="comPortInput_Click"/>
                 <Button Name="closeDevice" Content="Disconnect" Click="closeDevice_Click"/>
                 <Button Name="clear" Content="Clear" Click="clear_Click"/>
+                <Button Name="compare" Content="Play" Click="compare_Click"/>
             </StackPanel>
             <TextBox
                 x:Name="status" TextWrapping="Wrap" IsReadOnly="True" Width="auto" Height="auto" HorizontalAlignment="Left" VerticalAlignment="Top" 
@@ -52,11 +51,8 @@
             <Button Name="sendTextButton" Content="Write" Click="sendTextButton_Click" HorizontalAlignment="Center"/>
 
             <TextBlock HorizontalAlignment="Center" VerticalAlignment="Top"/>
-            <ScrollViewer Height="200" Width="auto">
+            <ScrollViewer Height="600" Width="auto">
                 <RichTextBlock Name="rcvdText" Width="auto" Height="auto" VerticalAlignment="Top" ScrollViewer.VerticalScrollMode="Enabled" FontSize="9"/>
-            </ScrollViewer>
-            <ScrollViewer Height="200" Width="auto">
-                <RichTextBlock Name="rcvdTelem" Width="auto" Height="auto" VerticalAlignment="Top" ScrollViewer.VerticalScrollMode="Enabled" FontSize="9"/>
             </ScrollViewer>
 
         </StackPanel>
