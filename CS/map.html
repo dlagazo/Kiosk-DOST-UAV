@@ -52,6 +52,7 @@
          var infowindow = new google.maps.InfoWindow({
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
              content: '<b>HEADQUARTERS</b><br/><br/><input type="text" width="80"/><button>Broadcast</button><br/><br/>' +
                  '<table>' +
                     '<tr>' +
@@ -83,6 +84,9 @@
 =======
              content: '<b>HEADQUARTERS</b><br/><div><button onclick="setStatus(0)">UAV</button><br/><button onclick="setStatus(1)">Aggregator</button><button onclick="setStatus(2)">Beacon</button></div>'
 >>>>>>> parent of c03f91d... minor
+=======
+             content: '<b>HEADQUARTERS</b><br/><div><button onclick="setStatus(0)">UAV</button><br/><button onclick="setStatus(1)">Aggregator</button><button onclick="setStatus(2)">Beacon</button></div>'
+>>>>>>> parent of b252140... Merge branch 'master' of https://github.com/dlagazo/Kiosk-DOST-UAV
 =======
              content: '<b>HEADQUARTERS</b><br/><div><button onclick="setStatus(0)">UAV</button><br/><button onclick="setStatus(1)">Aggregator</button><button onclick="setStatus(2)">Beacon</button></div>'
 >>>>>>> parent of b252140... Merge branch 'master' of https://github.com/dlagazo/Kiosk-DOST-UAV
@@ -222,6 +226,7 @@
                    animationLoop++;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
                else {
                    animationLoop = 0;
                    off = true;
@@ -232,6 +237,10 @@
                else
                    animationLoop = 0;
 >>>>>>> parent of c03f91d... minor
+=======
+               else
+                   animationLoop = 0;
+>>>>>>> parent of b252140... Merge branch 'master' of https://github.com/dlagazo/Kiosk-DOST-UAV
 =======
                else
                    animationLoop = 0;
@@ -256,6 +265,7 @@
                    content: "<img src='" + unescape(msg) + "'/>",
 
 <<<<<<< HEAD
+<<<<<<< HEAD
                beaconsWindowArray[loiterCounter].setContent(beaconsWindowArray[loiterCounter].getContent() + "<br/><img src='" + unescape(msg) + "'/>");
              
 
@@ -278,6 +288,22 @@
 
                });
 
+=======
+               });
+
+               marker.addListener('click', function () {
+                   infowindow.open(map, marker);
+               });
+               infowindow.open(map, marker);
+           }
+
+           else if (unescape(msg).indexOf("data:audio/") >= 0) {
+               var infowindow = new google.maps.InfoWindow({
+                   content: "<audio controls='' type='audio/wav' src='"+ unescape(msg) + "'></audio>",
+
+               });
+
+>>>>>>> parent of b252140... Merge branch 'master' of https://github.com/dlagazo/Kiosk-DOST-UAV
                marker.addListener('click', function () {
                    infowindow.open(map, marker);
                });
