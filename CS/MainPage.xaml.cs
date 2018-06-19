@@ -257,21 +257,6 @@ namespace SerialSample
 
         string received = "";
         string escaped = "";
-<<<<<<< HEAD
-<<<<<<< HEAD
-        private int BEACON_NODE_ID = 0;
-        private int BEACON_TRANSMIT_COUNT = 1;
-        private int BEACON_USERNAME = 2;
-        private int BEACON_UTC_DATE = 3;
-        private int BEACON_UTC_TIME = 4;
-        private int BEACON_LONGITUDE_DEGREES = 5;
-        private int BEACON_LATITUDE_DEGREES = 7;
-        private int BEACON_DATA_ARRAY_LENGTH = 9;
-
-=======
->>>>>>> parent of b252140... Merge branch 'master' of https://github.com/dlagazo/Kiosk-DOST-UAV
-=======
->>>>>>> parent of b252140... Merge branch 'master' of https://github.com/dlagazo/Kiosk-DOST-UAV
         private async Task ReadAsync(CancellationToken cancellationToken)
         {
             Task<UInt32> loadAsyncTask;
@@ -317,22 +302,10 @@ namespace SerialSample
 
                     System.Diagnostics.Debug.WriteLine(received);
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-                    await webView.InvokeScriptAsync("eval", new string[] { "test(1,2,'" + Uri.EscapeDataString(received) + "')" });
-                    received = "";
-                }
-                
-=======
                     await webView.InvokeScriptAsync("eval", new string[] { "test(1,2,'" + escaped.Substring(0, escaped.Length-4) + "')" });
                     received = "";
-=======
-                    await webView.InvokeScriptAsync("eval", new string[] { "test(1,2,'" + escaped.Substring(0, escaped.Length-4) + "')" });
-                    received = "";
->>>>>>> parent of b252140... Merge branch 'master' of https://github.com/dlagazo/Kiosk-DOST-UAV
                 }
 
->>>>>>> parent of b252140... Merge branch 'master' of https://github.com/dlagazo/Kiosk-DOST-UAV
 
 
                 //sendText.Text = val;
